@@ -3,170 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kiosco PRO+</title>
+<title>Mi Kiosco</title>
 
 <style>
-body {
-  font-family: -apple-system;
-  background: #111;
-  color: white;
-  text-align: center;
-  padding: 20px;
+:root{
+  --bg:#0f172a;
+  --card:#1e293b;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --warn:#f59e0b;
+  --text:#e2e8f0;
 }
 
-button {
-  width: 90%;
-  padding: 14px;
-  margin: 5px;
-  border-radius: 10px;
-  font-size: 16px;
-  border: none;
+body{
+  margin:0;
+  font-family:-apple-system;
+  background:var(--bg);
+  color:var(--text);
 }
 
-.btn { background: #2ecc71; }
-.cobrar { background: #e74c3c; }
-.config { background: #3498db; }
-.reset { background: #f39c12; }
-.delete { background: #555; }
+header{
+  padding:15px;
+  background:#020617;
+  text-align:center;
+  font-size:20px;
+  font-weight:bold;
+}
 
-.item {
-  background: #222;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 8px;
-  text-align: left;
+.container{
+  padding:15px;
+}
+
+.card{
+  background:var(--card);
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:10px;
+}
+
+.total{
+  font-size:28px;
+  text-align:center;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin:5px 0;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+}
+
+.btn{ background:var(--accent); color:black;}
+.cobrar{ background:var(--danger);}
+.warn{ background:var(--warn);}
+.sec{ background:#334155;}
+
+input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  margin-bottom:10px;
+  background:#020617;
+  color:white;
+}
+
+.item{
+  background:#020617;
+  padding:10px;
+  margin:5px 0;
+  border-radius:8px;
+  font-size:14px;
 }
 </style>
-
 </head>
+
 <body>
 
-<h1>🧾 Kiosco PRO+</h1>
+<header>🧾 Mi Kiosco</header>
 
-<h2 id="total">Total: $0</h2>
-<h3 id="totalDia">Ventas del día: $0</h3>
+<div class="container">
+
+<div class="card total" id="total">Total: $0</div>
+<div class="card" id="totalDia">Ventas del día: $0</div>
+
+<input type="text" id="buscador" placeholder="Buscar producto..." oninput="render()">
 
 <div id="productos"></div>
 
 <button class="cobrar" onclick="cobrar()">💰 COBRAR</button>
-<button class="config" onclick="editarPrecios()">⚙️ PRECIOS</button>
-<button class="config" onclick="agregarProducto()">➕ PRODUCTO</button>
-<button class="reset" onclick="cerrarCaja()">🔄 CERRAR CAJA</button>
+<button class="btn" onclick="agregarProducto()">➕ Producto</button>
+<button class="sec" onclick="editarPrecios()">⚙️ Precios</button>
+<button class="warn" onclick="cerrarCaja()">🔄 Cerrar caja</button>
 
+<div class="card">
 <h3>📊 Ventas</h3>
 <div id="ventas"></div>
+</div>
+
+</div>
 
 <script>
 let total = 0;
 
 let productos = JSON.parse(localStorage.getItem("productos")) || {
-  Bebidas: {precio: 1000, stock: 10},
-  Galletitas: {precio: 800, stock: 10},
-  Golosinas: {precio: 500, stock: 10}
+  Bebidas:{precio:1000,stock:10},
+  Galletitas:{precio:800,stock:10},
+  Golosinas:{precio:500,stock:10}
 };
 
 let ventas = JSON.parse(localStorage.getItem("ventas")) || [];
 
 function guardar(){
-  localStorage.setItem("productos", JSON.stringify(productos));
-  localStorage.setItem("ventas", JSON.stringify(ventas));
+  localStorage.setItem("productos",JSON.stringify(productos));
+  localStorage.setItem("ventas",JSON.stringify(ventas));
 }
 
 function render(){
+  let filtro = document.getElementById("buscador").value.toLowerCase();
   let cont = document.getElementById("productos");
-  cont.innerHTML = "";
+  cont.innerHTML="";
 
-  for(let nombre in productos){
-    let p = productos[nombre];
-
-    let btn = document.createElement("button");
-    btn.className = "btn";
-    btn.innerText = nombre + " $" + p.precio + " (Stock: " + p.stock + ")";
-    btn.onclick = () => vender(nombre);
-
-    cont.appendChild(btn);
+  for(let n in productos){
+    if(n.toLowerCase().includes(filtro)){
+      let p=productos[n];
+      let b=document.createElement("button");
+      b.className="btn";
+      b.innerText=n+" $"+p.precio+" (Stock:"+p.stock+")";
+      b.onclick=()=>vender(n);
+      cont.appendChild(b);
+    }
   }
 }
 
-function vender(nombre){
-  let p = productos[nombre];
-  if(p.stock <= 0){
-    alert("Sin stock");
-    return;
-  }
-
-  total += p.precio;
+function vender(n){
+  let p=productos[n];
+  if(p.stock<=0){alert("Sin stock");return;}
+  total+=p.precio;
   p.stock--;
-
   actualizar();
 }
 
 function cobrar(){
-  if(total === 0) return;
-
-  let ticket = {
-    monto: total,
-    hora: new Date().toLocaleTimeString()
-  };
-
-  ventas.push(ticket);
+  if(total===0)return;
+  ventas.push({monto:total,hora:new Date().toLocaleTimeString()});
   guardar();
-
-  alert("Ticket: $" + total);
-
-  total = 0;
+  alert("Venta: $"+total);
+  total=0;
   actualizar();
 }
 
 function editarPrecios(){
-  for(let nombre in productos){
-    let nuevo = prompt("Precio de " + nombre, productos[nombre].precio);
-    if(nuevo !== null){
-      productos[nombre].precio = parseInt(nuevo);
-    }
+  for(let n in productos){
+    let v=prompt("Precio "+n,productos[n].precio);
+    if(v!==null)productos[n].precio=parseInt(v);
   }
   guardar();
   render();
 }
 
 function agregarProducto(){
-  let nombre = prompt("Nombre del producto");
-  if(!nombre) return;
-
-  let precio = prompt("Precio");
-  let stock = prompt("Stock");
-
-  productos[nombre] = {
-    precio: parseInt(precio),
-    stock: parseInt(stock)
-  };
-
+  let n=prompt("Nombre");
+  if(!n)return;
+  let p=prompt("Precio");
+  let s=prompt("Stock");
+  productos[n]={precio:parseInt(p),stock:parseInt(s)};
   guardar();
   render();
 }
 
 function cerrarCaja(){
   if(confirm("Cerrar caja?")){
-    ventas = [];
+    ventas=[];
     localStorage.removeItem("ventas");
     actualizar();
   }
 }
 
 function actualizar(){
-  document.getElementById("total").innerText = "Total: $" + total;
+  document.getElementById("total").innerText="Total: $"+total;
+  let suma=ventas.reduce((a,b)=>a+b.monto,0);
+  document.getElementById("totalDia").innerText="Ventas del día: $"+suma;
 
-  let suma = ventas.reduce((a,b)=>a+b.monto,0);
-  document.getElementById("totalDia").innerText = "Ventas del día: $" + suma;
-
-  let lista = document.getElementById("ventas");
-  lista.innerHTML = "";
-
-  ventas.slice().reverse().forEach(v=>{
-    let div = document.createElement("div");
-    div.className = "item";
-    div.innerText = "$" + v.monto + " - " + v.hora;
-    lista.appendChild(div);
+  let v=document.getElementById("ventas");
+  v.innerHTML="";
+  ventas.slice().reverse().forEach(x=>{
+    let d=document.createElement("div");
+    d.className="item";
+    d.innerText="$"+x.monto+" - "+x.hora;
+    v.appendChild(d);
   });
 
   render();
