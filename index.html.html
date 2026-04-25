@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Mi Kiosco</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont;
+      text-align: center;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 { margin-bottom: 10px; }
+    #total { font-size: 28px; margin: 20px 0; }
+    button {
+      width: 90%;
+      padding: 15px;
+      margin: 8px 0;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      background: #2ecc71;
+      color: white;
+    }
+    .cobrar { background: #e74c3c; }
+  </style>
+</head>
+<body>
+
+  <h1>🧾 Mi Kiosco</h1>
+  <div id="total">Total: $0</div>
+
+  <button onclick="agregar(1000)">🥤 Bebidas</button>
+  <button onclick="agregar(800)">🍪 Galletitas</button>
+  <button onclick="agregar(500)">🍬 Golosinas</button>
+  <button onclick="agregar(300)">📦 Varios</button>
+
+  <button class="cobrar" onclick="cobrar()">💰 COBRAR</button>
+
+  <script>
+    let total = 0;
+
+    function agregar(valor){
+      total += valor;
+      document.getElementById("total").innerText = "Total: $" + total;
+    }
+
+    function cobrar(){
+      alert("Venta registrada por $" + total);
+      total = 0;
+      document.getElementById("total").innerText = "Total: $0";
+    }
+
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("service-worker.js");
+    }
+  </script>
+
+</body>
+</html>
