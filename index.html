@@ -4,63 +4,61 @@
   <meta charset="UTF-8">
   <title>Mi Kiosco</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
-
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont;
+      font-family: -apple-system;
       text-align: center;
       background: #111;
-      color: #fff;
-      margin: 0;
+      color: white;
       padding: 20px;
     }
-    h1 { margin-bottom: 10px; }
-    #total { font-size: 28px; margin: 20px 0; }
     button {
       width: 90%;
       padding: 15px;
-      margin: 8px 0;
+      margin: 8px;
+      border-radius: 10px;
       font-size: 18px;
-      border: none;
-      border-radius: 12px;
-      background: #2ecc71;
-      color: white;
     }
-    .cobrar { background: #e74c3c; }
   </style>
 </head>
 <body>
 
-  <h1>🧾 Mi Kiosco</h1>
-  <div id="total">Total: $0</div>
+<h1>🧾 Mi Kiosco</h1>
+<h2 id="total">Total: $0</h2>
+<h3 id="dia">Ventas del día: $0</h3>
 
-  <button onclick="agregar(1000)">🥤 Bebidas</button>
-  <button onclick="agregar(800)">🍪 Galletitas</button>
-  <button onclick="agregar(500)">🍬 Golosinas</button>
-  <button onclick="agregar(300)">📦 Varios</button>
+<button onclick="agregar(1000)">🥤 Bebidas</button>
+<button onclick="agregar(800)">🍪 Galletitas</button>
+<button onclick="agregar(500)">🍬 Golosinas</button>
+<button onclick="agregar(300)">📦 Varios</button>
 
-  <button class="cobrar" onclick="cobrar()">💰 COBRAR</button>
+<button onclick="cobrar()">💰 COBRAR</button>
 
-  <script>
-    let total = 0;
+<script>
+let total = 0;
+let ventas = JSON.parse(localStorage.getItem("ventas")) || [];
 
-    function agregar(valor){
-      total += valor;
-      document.getElementById("total").innerText = "Total: $" + total;
-    }
+function agregar(valor){
+  total += valor;
+  actualizar();
+}
 
-    function cobrar(){
-      alert("Venta registrada por $" + total);
-      total = 0;
-      document.getElementById("total").innerText = "Total: $0";
-    }
+function cobrar(){
+  if(total === 0) return;
+  ventas.push(total);
+  localStorage.setItem("ventas", JSON.stringify(ventas));
+  total = 0;
+  actualizar();
+}
 
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("service-worker.js");
-    }
-  </script>
+function actualizar(){
+  document.getElementById("total").innerText = "Total: $" + total;
+  let suma = ventas.reduce((a,b)=>a+b,0);
+  document.getElementById("dia").innerText = "Ventas del día: $" + suma;
+}
+
+actualizar();
+</script>
 
 </body>
 </html>
