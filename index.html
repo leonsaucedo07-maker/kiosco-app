@@ -30,7 +30,9 @@ header{
   font-weight:bold;
 }
 
-.container{ padding:15px; }
+.container{
+  padding:15px;
+}
 
 .card{
   background:var(--card);
@@ -85,10 +87,7 @@ input{
 <div class="container">
 
 <div class="card total" id="total">Total: $0</div>
-<div class="card" id="totalDia">Ventas: $0</div>
-
-<!-- 🔥 FILTRO POR FECHA -->
-<input type="date" id="filtroFecha" onchange="actualizar()">
+<div class="card" id="totalDia">Ventas del día: $0</div>
 
 <input type="text" id="buscador" placeholder="Buscar producto..." oninput="render()">
 
@@ -149,23 +148,10 @@ function vender(n){
 
 function cobrar(){
   if(total===0)return;
-
-  let fecha = prompt("Fecha de la venta (YYYY-MM-DD). Dejá vacío para hoy:");
-
-  if(!fecha){
-    fecha = new Date().toISOString().split("T")[0];
-  }
-
-  ventas.push({
-    monto: total,
-    hora: new Date().toLocaleTimeString(),
-    fechaVenta: fecha
-  });
-
+  ventas.push({monto:total,hora:new Date().toLocaleTimeString()});
   guardar();
-  alert("Venta: $" + total + " guardada con fecha " + fecha);
-
-  total = 0;
+  alert("Venta: $"+total);
+  total=0;
   actualizar();
 }
 
@@ -197,28 +183,16 @@ function cerrarCaja(){
 }
 
 function actualizar(){
-
   document.getElementById("total").innerText="Total: $"+total;
-
-  let filtro = document.getElementById("filtroFecha").value;
-
-  let ventasFiltradas = ventas;
-
-  if(filtro){
-    ventasFiltradas = ventas.filter(v => v.fechaVenta === filtro);
-  }
-
-  let suma = ventasFiltradas.reduce((a,b)=>a+b.monto,0);
-
-  document.getElementById("totalDia").innerText="Ventas: $"+suma;
+  let suma=ventas.reduce((a,b)=>a+b.monto,0);
+  document.getElementById("totalDia").innerText="Ventas del día: $"+suma;
 
   let v=document.getElementById("ventas");
   v.innerHTML="";
-
-  ventasFiltradas.slice().reverse().forEach(x=>{
+  ventas.slice().reverse().forEach(x=>{
     let d=document.createElement("div");
     d.className="item";
-    d.innerText="$"+x.monto+" - "+x.fechaVenta+" " + x.hora;
+    d.innerText="$"+x.monto+" - "+x.hora;
     v.appendChild(d);
   });
 
